@@ -1,5 +1,7 @@
 const MIN_POINTS = 16;
 const EPSILON = 1e-9;
+const MIN_CLOUD_RADIAL_DEVIATION = 0.11;
+const MIN_CLOUD_RECTANGLE_EDGE_ERROR = 0.06;
 
 function invalidResult(reason) {
   return { status: "unrecognized", category: null, confidence: 0, reason };
@@ -56,11 +58,23 @@ function geometryScores(points, bounds) {
   const meanRadius = radii.reduce((sum, value) => sum + value, 0) / radii.length;
   const radialDeviation = radii.reduce((sum, value) => sum + Math.abs(value - meanRadius), 0) /
     radii.length / Math.max(meanRadius, EPSILON);
+  const radialRoughness = radii.reduce((sum, value, index) => {
+    const previous = radii[(index - 1 + radii.length) % radii.length];
+    const next = radii[(index + 1) % radii.length];
+    return sum + Math.abs(previous - 2 * value + next);
+  }, 0) / radii.length / Math.max(meanRadius, EPSILON);
   const peaks = countRadialPeaks(radii);
-  const circle = Math.max(0, Math.min(1, 1 - radialDeviation * 4.2 - Math.abs(width / height - 1) * 0.15));
+  const circle = Math.max(0, Math.min(1,
+    1 - radialDeviation * 3.4 - radialRoughness * 0.4 - Math.abs(width / height - 1) * 0.15,
+  ));
+  // Peak count alone promotes shallow wobble, so clouds also need radial amplitude and weak rectangle-edge adherence.
+  const hasProminentCloudLobes = radialDeviation >= MIN_CLOUD_RADIAL_DEVIATION &&
+    edgeError >= MIN_CLOUD_RECTANGLE_EDGE_ERROR;
   const cloudDeviationFit = Math.max(0, 1 - Math.abs(radialDeviation - 0.122) * 5);
   const cloudPeakFit = Math.max(0, 1 - Math.abs(peaks - 5) * 0.12);
-  const cloud = Math.max(0, Math.min(1, 0.15 + cloudDeviationFit * 0.55 + cloudPeakFit * 0.28));
+  const cloud = hasProminentCloudLobes
+    ? Math.max(0, Math.min(1, 0.15 + cloudDeviationFit * 0.55 + cloudPeakFit * 0.28))
+    : 0;
   return { circle, rectangle, cloud };
 }
 
