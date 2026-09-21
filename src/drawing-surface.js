@@ -237,8 +237,12 @@ export function createDrawingSurface({ canvas, surface, undoButton, clearButton,
   }
 
   function normalized(points) {
-    const { width, height } = canvasSize();
-    return points.map(({ x, y }) => ({ x: x / width, y: y / height }));
+    const bounds = boundsOf(points);
+    const scale = Math.max(bounds.width, bounds.height, Number.EPSILON);
+    return points.map(({ x, y }) => ({
+      x: (x - bounds.minX) / scale,
+      y: (y - bounds.minY) / scale,
+    }));
   }
 
   function completeActive(event) {
