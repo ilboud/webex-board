@@ -12,6 +12,7 @@ async function drawPoints(page, points, options = {}) {
   const { pointerId = 1, pointerType = "mouse", scale = 1, offsetX = 0, offsetY = 0, ending = "pointerup" } = options;
   await page.locator("#drawing-canvas").evaluate((canvas, input) => {
     const rect = canvas.getBoundingClientRect();
+    const cssScale = input.scale * Math.min(rect.width, rect.height);
     const eventFor = (type, point) => new PointerEvent(type, {
       bubbles: true,
       cancelable: true,
@@ -19,8 +20,8 @@ async function drawPoints(page, points, options = {}) {
       pointerType: input.pointerType,
       isPrimary: true,
       buttons: type === "pointerup" || type === "pointercancel" ? 0 : 1,
-      clientX: rect.left + (input.offsetX + point.x * input.scale) * rect.width,
-      clientY: rect.top + (input.offsetY + point.y * input.scale) * rect.height,
+      clientX: rect.left + input.offsetX * rect.width + point.x * cssScale,
+      clientY: rect.top + input.offsetY * rect.height + point.y * cssScale,
     });
     canvas.dispatchEvent(eventFor("pointerdown", input.points[0]));
     for (const point of input.points.slice(1, -1)) canvas.dispatchEvent(eventFor("pointermove", point));
@@ -236,6 +237,22 @@ test("pointer lifecycle recovery", async ({ page }) => {
     emit("pointerup", 4098);
   });
   await proveRecovery();
+});
+
+test("real CSS geometry wide-canvas mapping", async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 950 });
+  const canvas = await page.locator("#drawing-canvas").boundingBox();
+  expect(canvas.width / canvas.height).toBeGreaterThan(2);
+
+  for (const [fixture, icon] of [["clean-circle-64", "router"], ["clean-rectangle-64", "lan"], ["clean-cloud-64", "cloud"]]) {
+    await drawFixture(page, fixture, { scale: 0.75, offsetX: 0.1, offsetY: 0.05 });
+    const state = await snapshot(page);
+    expect(state.elements).toHaveLength(1);
+    expect(state.elements[0].type).toBe("icon");
+    expect(state.elements[0].icon.id).toBe(icon);
+    expect(state.suggestion).toBeNull();
+    await clear(page);
+  }
 });
 
 test("high-confidence replacement mapping", async ({ page }) => {
