@@ -1,0 +1,75 @@
+:root {
+  color-scheme: light;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #17324d;
+  background: #eef4f8;
+}
+
+* { box-sizing: border-box; }
+
+html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+
+button {
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid #7890a5;
+  border-radius: 8px;
+  padding: 0 16px;
+  color: #17324d;
+  background: #fff;
+  font: inherit;
+  font-weight: 650;
+  touch-action: manipulation;
+}
+
+button:active { background: #dcebf5; }
+button:focus-visible { outline: 3px solid #087bb9; outline-offset: 2px; }
+
+.app-shell { display: grid; grid-template-rows: auto 1fr; width: 100%; height: 100%; padding: 16px; gap: 12px; }
+.toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+h1 { margin: 0; font-size: clamp(1.2rem, 2vw, 2rem); }
+.actions { display: flex; gap: 10px; }
+
+.drawing-surface {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 2px solid #7890a5;
+  border-radius: 12px;
+  background: #fff;
+}
+
+#drawing-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.replacement-icon {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  object-fit: contain;
+}
+
+.suggestion {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  gap: 6px;
+  padding: 2px;
+  border-radius: 10px;
+  background: #e8f3fa;
+  box-shadow: 0 2px 8px rgb(23 50 77 / 25%);
+}
+
+.suggestion button { padding-inline: 12px; }
+
+@media (max-width: 640px) {
+  .app-shell { padding: 8px; gap: 8px; }
+  .toolbar { align-items: flex-start; }
+  h1 { max-width: 45%; }
+}
