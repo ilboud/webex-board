@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Desk Pro Pages Smoke Test</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      background: #07182d;
+      color: #f7fbff;
+    }
+
+    main {
+      width: min(92vw, 960px);
+      padding: clamp(24px, 5vw, 64px);
+      text-align: center;
+      border: 2px solid #62b5e5;
+      border-radius: 24px;
+      background: #0d2745;
+      box-shadow: 0 20px 60px rgb(0 0 0 / 35%);
+    }
+
+    h1 {
+      margin: 0 0 16px;
+      font-size: clamp(40px, 6vw, 80px);
+    }
+
+    p { font-size: clamp(20px, 2.5vw, 34px); }
+
+    button {
+      min-width: 280px;
+      min-height: 96px;
+      margin: 24px 0;
+      padding: 18px 36px;
+      border: 0;
+      border-radius: 18px;
+      background: #00bceb;
+      color: #001a2d;
+      font: inherit;
+      font-size: clamp(26px, 3vw, 42px);
+      font-weight: 700;
+      touch-action: manipulation;
+      cursor: pointer;
+    }
+
+    button:active { background: #8bdc65; }
+
+    dl {
+      display: grid;
+      grid-template-columns: max-content 1fr;
+      gap: 12px 24px;
+      margin: 24px auto 0;
+      text-align: left;
+      font-size: clamp(16px, 1.8vw, 26px);
+    }
+
+    dt { color: #8fd8f8; font-weight: 700; }
+    dd { margin: 0; overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Hello from Desk Pro</h1>
+    <p>This page validates GitHub Pages, RoomOS WebEngine loading, and basic pointer input.</p>
+    <button id="tap" type="button">Tap me</button>
+    <p id="result" role="status" aria-live="polite">Tap count: 0</p>
+    <dl>
+      <dt>Viewport</dt><dd id="viewport"></dd>
+      <dt>Pixel ratio</dt><dd id="dpr"></dd>
+      <dt>Last pointer</dt><dd id="pointer">None</dd>
+      <dt>Page path</dt><dd id="path"></dd>
+      <dt>User agent</dt><dd id="ua"></dd>
+    </dl>
+  </main>
+  <script>
+    const tapButton = document.querySelector('#tap');
+    const result = document.querySelector('#result');
+    const viewport = document.querySelector('#viewport');
+    const dpr = document.querySelector('#dpr');
+    const pointer = document.querySelector('#pointer');
+
+    let tapCount = 0;
+
+    function updateEnvironment() {
+      viewport.textContent = `${window.innerWidth} × ${window.innerHeight} CSS px`;
+      dpr.textContent = String(window.devicePixelRatio);
+    }
+
+    tapButton.addEventListener('pointerup', (event) => {
+      tapCount += 1;
+      result.textContent = `Tap count: ${tapCount}`;
+      pointer.textContent = `${event.pointerType || 'unknown'} (id ${event.pointerId})`;
+    });
+
+    window.addEventListener('resize', updateEnvironment);
+    document.querySelector('#path').textContent = window.location.pathname;
+    document.querySelector('#ua').textContent = navigator.userAgent;
+    updateEnvironment();
+  </script>
+</body>
+</html>
