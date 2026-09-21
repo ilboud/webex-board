@@ -1,0 +1,38 @@
+name: Deploy static whiteboard to Pages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Configure Pages
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b
+      - name: Stage public files
+        run: |
+          mkdir -p _site/src _site/assets/material-symbols _site/LICENSES
+          cp index.html styles.css THIRD_PARTY_NOTICES.md _site/
+          cp src/app.js src/drawing-surface.js _site/src/
+          cp src/stroke-recognizer.js src/confidence-config.js _site/src/
+          cp src/icon-catalog.js _site/src/
+          cp assets/material-symbols/router.svg _site/assets/material-symbols/
+          cp assets/material-symbols/lan.svg _site/assets/material-symbols/
+          cp assets/material-symbols/cloud.svg _site/assets/material-symbols/
+          cp LICENSES/Apache-2.0.txt _site/LICENSES/
+      - name: Upload Pages artifact
+        uses: >-
+          actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa
+        with:
+          path: _site
+      - name: Deploy Pages artifact
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e

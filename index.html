@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Network Icon Whiteboard</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="toolbar">
+      <h1>Network Icon Whiteboard</h1>
+      <div class="actions" aria-label="Whiteboard actions">
+        <button id="undo" type="button">Undo</button>
+        <button id="clear" type="button">Clear</button>
+      </div>
+    </header>
+    <section id="drawing-surface" class="drawing-surface" aria-label="Drawing surface">
+      <canvas id="drawing-canvas" aria-label="Whiteboard canvas"></canvas>
+    </section>
+  </main>
+  <script type="module" src="./src/app.js"></script>
+</body>
+</html>

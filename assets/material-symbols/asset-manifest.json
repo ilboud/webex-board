@@ -1,0 +1,25 @@
+{
+  "upstreamCommit": "27e9ef1dbeedc13d682fece4a58e1eda4cb0961a",
+  "assets": [
+    {
+      "path": "assets/material-symbols/router.svg",
+      "url": "https://raw.githubusercontent.com/google/material-design-icons/27e9ef1dbeedc13d682fece4a58e1eda4cb0961a/symbols/web/router/materialsymbolsoutlined/router_24px.svg",
+      "sha256": "e7355740f055158a18be41119e0ac655758bfa799006316e2e31ca6937431772"
+    },
+    {
+      "path": "assets/material-symbols/lan.svg",
+      "url": "https://raw.githubusercontent.com/google/material-design-icons/27e9ef1dbeedc13d682fece4a58e1eda4cb0961a/symbols/web/lan/materialsymbolsoutlined/lan_24px.svg",
+      "sha256": "2f8def569ad86806c5b46357f3e93798df13a6e0eabbd5660f4eaabe7e362e71"
+    },
+    {
+      "path": "assets/material-symbols/cloud.svg",
+      "url": "https://raw.githubusercontent.com/google/material-design-icons/27e9ef1dbeedc13d682fece4a58e1eda4cb0961a/symbols/web/cloud/materialsymbolsoutlined/cloud_24px.svg",
+      "sha256": "a432f176f21f1f8b66fb55ba64507d4280f3ea82c3e4df0e360ead8907f8c27c"
+    },
+    {
+      "path": "LICENSES/Apache-2.0.txt",
+      "url": "https://raw.githubusercontent.com/google/material-design-icons/27e9ef1dbeedc13d682fece4a58e1eda4cb0961a/LICENSE",
+      "sha256": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd"
+    }
+  ]
+}
