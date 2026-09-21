@@ -4,6 +4,51 @@ import { readFileSync } from "node:fs";
 const corpus = JSON.parse(readFileSync(new URL("../fixtures/recognition-corpus.json", import.meta.url)));
 const pointsFor = (id) => corpus.fixtures.find((fixture) => fixture.id === id).points;
 
+function normalizedGesture(points) {
+  const xs = points.map(({ x }) => x);
+  const ys = points.map(({ y }) => y);
+  const minX = Math.min(...xs);
+  const minY = Math.min(...ys);
+  const scale = Math.max(Math.max(...xs) - minX, Math.max(...ys) - minY);
+  return points.map(({ x, y }) => ({ x: (x - minX) / scale, y: (y - minY) / scale }));
+}
+
+function wobblyCircleGesture() {
+  const points = Array.from({ length: 95 }, (_, index) => {
+    const angle = 2 * Math.PI * index / 95;
+    const radius = 230 + 32 * Math.cos(5 * angle);
+    return { x: radius * Math.cos(angle), y: radius * Math.sin(angle) };
+  });
+  points.push({ ...points[0] });
+  return normalizedGesture(points);
+}
+
+function imperfectRectangleGesture() {
+  const points = [];
+  const pointsPerEdge = 24;
+  const width = 700;
+  const height = 470;
+  const wobble = (progress) => 18 * Math.sin(5 * Math.PI * progress);
+  for (let index = 0; index < pointsPerEdge; index += 1) {
+    const progress = index / pointsPerEdge;
+    points.push({ x: progress * width, y: wobble(progress) });
+  }
+  for (let index = 0; index < pointsPerEdge; index += 1) {
+    const progress = index / pointsPerEdge;
+    points.push({ x: width - wobble(progress), y: progress * height });
+  }
+  for (let index = 0; index < pointsPerEdge; index += 1) {
+    const progress = index / pointsPerEdge;
+    points.push({ x: (1 - progress) * width, y: height - wobble(progress) });
+  }
+  for (let index = 0; index < pointsPerEdge; index += 1) {
+    const progress = index / pointsPerEdge;
+    points.push({ x: wobble(progress), y: (1 - progress) * height });
+  }
+  points.push({ ...points[0] });
+  return normalizedGesture(points);
+}
+
 async function snapshot(page) {
   return page.evaluate(() => window.__whiteboardDebug.snapshot());
 }
@@ -253,6 +298,29 @@ test("real CSS geometry wide-canvas mapping", async ({ page }) => {
     expect(state.suggestion).toBeNull();
     await clear(page);
   }
+});
+
+test("production false-cloud gesture regression", async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  for (const [points, category, icon] of [
+    [wobblyCircleGesture(), "circle", "router"],
+    [imperfectRectangleGesture(), "rectangle", "lan"],
+  ]) {
+    await drawPoints(page, points, { scale: 0.75, offsetX: 0.1, offsetY: 0.05 });
+    const state = await snapshot(page);
+    expect(state.elements).toHaveLength(1);
+    expect(state.elements[0].type).toBe("stroke");
+    expect(state.suggestion.category).toBe(category);
+    expect(state.suggestion.icon.id).toBe(icon);
+    await clear(page);
+  }
+
+  await drawFixture(page, "clean-cloud-64", { scale: 0.75, offsetX: 0.1, offsetY: 0.05 });
+  const cloudState = await snapshot(page);
+  expect(cloudState.elements).toHaveLength(1);
+  expect(cloudState.elements[0].type).toBe("icon");
+  expect(cloudState.elements[0].icon.id).toBe("cloud");
+  expect(cloudState.suggestion).toBeNull();
 });
 
 test("high-confidence replacement mapping", async ({ page }) => {

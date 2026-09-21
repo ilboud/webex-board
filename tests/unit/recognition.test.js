@@ -10,11 +10,69 @@ const corpus = JSON.parse(readFileSync(new URL("../fixtures/recognition-corpus.j
 const fixture = (id) => corpus.fixtures.find((item) => item.id === id);
 const bandOf = (result) => confidenceBand(result.confidence, DEFAULT_CONFIDENCE);
 
+function normalizedGesture(points) {
+  const xs = points.map(({ x }) => x);
+  const ys = points.map(({ y }) => y);
+  const minX = Math.min(...xs);
+  const minY = Math.min(...ys);
+  const scale = Math.max(Math.max(...xs) - minX, Math.max(...ys) - minY);
+  return points.map(({ x, y }) => ({ x: (x - minX) / scale, y: (y - minY) / scale }));
+}
+
+function wobblyCircleGesture() {
+  const points = Array.from({ length: 95 }, (_, index) => {
+    const angle = 2 * Math.PI * index / 95;
+    const radius = 230 + 32 * Math.cos(5 * angle);
+    return { x: radius * Math.cos(angle), y: radius * Math.sin(angle) };
+  });
+  points.push({ ...points[0] });
+  return normalizedGesture(points);
+}
+
+function imperfectRectangleGesture() {
+  const points = [];
+  const pointsPerEdge = 24;
+  const width = 700;
+  const height = 470;
+  const wobble = (progress) => 18 * Math.sin(5 * Math.PI * progress);
+  for (let index = 0; index < pointsPerEdge; index += 1) {
+    const progress = index / pointsPerEdge;
+    points.push({ x: progress * width, y: wobble(progress) });
+  }
+  for (let index = 0; index < pointsPerEdge; index += 1) {
+    const progress = index / pointsPerEdge;
+    points.push({ x: width - wobble(progress), y: progress * height });
+  }
+  for (let index = 0; index < pointsPerEdge; index += 1) {
+    const progress = index / pointsPerEdge;
+    points.push({ x: (1 - progress) * width, y: height - wobble(progress) });
+  }
+  for (let index = 0; index < pointsPerEdge; index += 1) {
+    const progress = index / pointsPerEdge;
+    points.push({ x: wobble(progress), y: (1 - progress) * height });
+  }
+  points.push({ ...points[0] });
+  return normalizedGesture(points);
+}
+
 test("clean recognition corpus", () => {
   for (const category of ["circle", "rectangle", "cloud"]) {
     const result = recognizeStroke(fixture(`clean-${category}-64`).points);
     assert.equal(result.category, category);
     assert.equal(bandOf(result), "high");
+  }
+});
+
+test("prominent cloud lobe gate", () => {
+  for (const [points, category, band] of [
+    [wobblyCircleGesture(), "circle", "medium"],
+    [imperfectRectangleGesture(), "rectangle", "medium"],
+    [fixture("clean-cloud-64").points, "cloud", "high"],
+  ]) {
+    const result = recognizeStroke(points);
+    assert.equal(result.status, "recognized");
+    assert.equal(result.category, category);
+    assert.equal(bandOf(result), band);
   }
 });
 
