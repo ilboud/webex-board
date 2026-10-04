@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,16 +8,41 @@
 </head>
 <body>
   <main class="app-shell">
-    <header class="toolbar">
+    <header class="toolbar" aria-label="Whiteboard toolbar">
       <h1>Network Icon Whiteboard</h1>
+      <div class="tool-group" role="group" aria-label="Drawing tools">
+        <button id="tool-normal" class="icon-button" type="button" aria-label="Normal Pen" aria-pressed="false"><img src="./assets/heroicons/controls/pencil.svg" alt=""><span>Normal Pen</span></button>
+        <button id="tool-magic" class="icon-button selected" type="button" aria-label="Magic Pen" aria-pressed="true"><img src="./assets/heroicons/controls/sparkles.svg" alt=""><span>Magic Pen</span></button>
+        <button id="tool-select" class="icon-button" type="button" aria-label="Select" aria-pressed="false"><img src="./assets/heroicons/controls/cursor-arrow-rays.svg" alt=""><span>Select</span></button>
+      </div>
+      <label class="color-control" for="stroke-color"><img src="./assets/heroicons/controls/swatch.svg" alt=""><span>Ink color</span><input id="stroke-color" type="color" value="#17324d" aria-label="Ink color"></label>
       <div class="actions" aria-label="Whiteboard actions">
-        <button id="undo" type="button">Undo</button>
-        <button id="clear" type="button">Clear</button>
+        <button id="undo" class="icon-button" type="button"><img src="./assets/heroicons/controls/arrow-uturn-left.svg" alt=""><span>Undo</span></button>
+        <button id="clear" class="icon-button" type="button"><img src="./assets/heroicons/controls/backspace.svg" alt=""><span>Clear</span></button>
       </div>
     </header>
-    <section id="drawing-surface" class="drawing-surface" aria-label="Drawing surface">
-      <canvas id="drawing-canvas" aria-label="Whiteboard canvas"></canvas>
-    </section>
+    <div class="workspace">
+      <aside id="icon-drawer" class="icon-drawer" aria-label="Icon library">
+        <div class="drawer-heading">
+          <h2><img src="./assets/heroicons/controls/squares-2x2.svg" alt="">Icons</h2>
+          <button id="drawer-toggle" class="square-button" type="button" aria-label="Collapse icon drawer" aria-expanded="true"><img src="./assets/heroicons/controls/chevron-left.svg" alt=""></button>
+        </div>
+        <div class="drawer-content">
+          <label class="search-control" for="icon-search"><img src="./assets/heroicons/controls/magnifying-glass.svg" alt=""><span class="visually-hidden">Search icons</span><input id="icon-search" type="search" placeholder="Search icons" autocomplete="off"></label>
+          <div id="library-filters" class="library-filters" role="group" aria-label="Icon library filters"></div>
+          <div id="library-status" class="library-status" role="status" aria-live="polite"></div>
+          <div id="icon-grid" class="icon-grid" aria-label="Available icons"></div>
+        </div>
+      </aside>
+      <section id="drawing-surface" class="drawing-surface" aria-label="Drawing surface">
+        <canvas id="drawing-canvas" aria-label="Whiteboard canvas"></canvas>
+        <div id="selection-actions" class="selection-actions ui-control" aria-label="Selected icon actions">
+          <button id="edit-label" class="icon-button" type="button" hidden><img src="./assets/heroicons/controls/pencil-square.svg" alt=""><span>Edit label</span></button>
+          <input id="icon-label-input" type="text" aria-label="Icon label" hidden>
+          <button id="delete-icon" class="icon-button" type="button" hidden><img src="./assets/heroicons/controls/trash.svg" alt=""><span>Delete</span></button>
+        </div>
+      </section>
+    </div>
   </main>
   <script type="module" src="./src/app.js"></script>
 </body>
